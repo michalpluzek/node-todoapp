@@ -27,7 +27,7 @@ const handleCommand = ({ add, list, remove }) => {
 
 const handleData = (type, title) => {
   fs.readFile("data.json", (err, file) => {
-    const tasks = JSON.parse(file);
+    let tasks = JSON.parse(file);
 
     if (type === 1 || type === 2) {
       const isExisted = tasks.find((task) => task.title === title)
@@ -43,6 +43,9 @@ const handleData = (type, title) => {
       case 1:
         const id = tasks.length + 1;
         const textAdd = `Dodano zadanie: ${title}`.white.bgBlue;
+
+        tasks = reidList(tasks);
+
         tasks.push({ id, title });
 
         handleWriteFile(tasks, textAdd);
@@ -53,12 +56,20 @@ const handleData = (type, title) => {
         const textRemove = `Usunięto zadanie: ${title}`.white.bgRed;
         tasks.splice(index, 1);
 
+        tasks = reidList(tasks);
+
         handleWriteFile(tasks, textRemove);
         break;
 
       case 3:
         console.log(
-          `Lista zadań do zrobienia obejmuje: ${tasks.length} pozycji. Do zrobienia zostało: `
+          `Lista zadań do zrobienia obejmuje: ${tasks.length} ${
+            tasks.length === 0
+              ? "pozycji"
+              : tasks.length === 1
+              ? "pozycja"
+              : "pozycje"
+          }. ${tasks.length > 0 ? "Do zrobienia zostało: " : ""}`
         );
         if (tasks.length) {
           tasks.forEach((task, index) => {
@@ -80,6 +91,14 @@ const handleWriteFile = (tasks, text) => {
     if (err) throw err;
     console.log(text);
   });
+};
+
+const reidList = (tasks) => {
+  const properIdList = tasks.map((task, index) => ({
+    id: index + 1,
+    title: task.title,
+  }));
+  return properIdList;
 };
 
 handleCommand(command);
